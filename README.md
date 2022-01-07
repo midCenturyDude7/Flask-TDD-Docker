@@ -1,1 +1,1 @@
-Project Goal: a RESTful API, using Test-Driven Development. The API itself will follow RESTful design principles, using the basic HTTP verbs: GET, POST, PUT, and DELETE.
+Project Goal: Build a RESTful API, using Test-Driven Development. The API itself will follow RESTful design principles, using the basic HTTP verbs: GET, POST, PUT, and DELETE.
