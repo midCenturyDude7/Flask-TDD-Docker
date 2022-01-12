@@ -9,6 +9,11 @@ instance/*
 .env
 .flaskenv
 
+###Coverage***
+.coveragerc
+.coverage
+htmlcov/*
+
 ### Docker ###
 .dockerignore
 
