@@ -37,7 +37,11 @@ class Users(Resource):
         user = User.query.filter_by(id=user_id).first()
         if not user:
             api.abort(404, f"User {user_id} does not exist")
-        
+
+        if User.query.filter_by(email=email).first():
+            response_object["message"] = "Sorry. That email already exists."
+            return response_object, 400
+
         user.username = username
         user.email = email
         db.session.commit()

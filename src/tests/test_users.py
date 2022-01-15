@@ -1,5 +1,7 @@
 import json
+
 import pytest
+
 from src.api.models import User
 
 
@@ -122,7 +124,7 @@ def test_remove_user(test_app, test_database, add_user):
     resp_two = client.delete(f"/users/{user.id}")
     data = json.loads(resp_two.data.decode())
     assert resp_two.status_code == 200
-    assert 'remove-me@testdriven.io was removed!' in data['message']
+    assert "remove-me@testdriven.io was removed!" in data["message"]
 
     resp_three = client.get("/users")
     data = json.loads(resp_three.data.decode())
@@ -158,12 +160,22 @@ def test_update_user(test_app, test_database, add_user):
 
 
 # paramertrizing test functions
-@pytest.mark.parametrize("user_id, payload, status_code, message", [
-    [1, {}, 400, "Input payload validation failed"],
-    [1, {"email": "me@testdriven.io"}, 400, "Input payload validation failed"],
-    [999, {"username": "me", "email": "me@testdriven.io"}, 404, "User 999 does not exist"],
-])
-def test_update_user_invalid(test_app, test_database, user_id, payload, status_code, message):
+@pytest.mark.parametrize(
+    "user_id, payload, status_code, message",
+    [
+        [1, {}, 400, "Input payload validation failed"],
+        [1, {"email": "me@testdriven.io"}, 400, "Input payload validation failed"],
+        [
+            999,
+            {"username": "me", "email": "me@testdriven.io"},
+            404,
+            "User 999 does not exist",
+        ],
+    ],
+)
+def test_update_user_invalid(
+    test_app, test_database, user_id, payload, status_code, message
+):
     client = test_app.test_client()
     resp = client.put(
         f"users/{user_id}",
@@ -175,37 +187,16 @@ def test_update_user_invalid(test_app, test_database, user_id, payload, status_c
     assert message in data["message"]
 
 
-# def test_update_user_invalid_json(test_app, test_database):
-#     client = test_app.test_client()
-#     resp = client.put(
-#         "/users/1",
-#         data=json.dumps({}),
-#         content_type="application/json",
-#     )
-#     data = json.loads(resp.data.decode())
-#     assert resp.status_code == 400
-#     assert "Input payload validation failed" in data["message"]
+def test_update_user_duplicate_email(test_app, test_database, add_user):
+    add_user("hajek", "rob@hajek.org")
+    user = add_user("rob", "rob@notreal.com")
 
-
-# def test_update_user_invalid_json_keys(test_app, test_database):
-#     client = test_app.test_client()
-#     resp = client.put(
-#         "/users/1",
-#         data=json.dumps({"email": "me@testdriven.io"}),
-#         content_type="application/json",
-#     )
-#     data = json.loads(resp.data.decode())
-#     assert resp.status_code == 400
-#     assert "Input payload validation failed" in data["message"]
-
-
-# def test_update_user_does_not_exist(test_app, test_database):
-#     client = test_app.test_client()
-#     resp = client.put(
-#         "/users/999",
-#         data=json.dumps({"username": "me", "email": "me@testdriven.io"}),
-#         content_type="application/json",
-#     )
-#     data = json.loads(resp.data.decode())
-#     assert resp.status_code == 404
-#     assert "User 999 does not exist" in data["message"]
+    client = test_app.test_client()
+    resp = client.put(
+        f"/users/{user.id}",
+        data=json.dumps({"username": "rob", "email": "rob@notreal.com"}),
+        content_type="application/json",
+    )
+    data = json.loads(resp.data.decode())
+    assert resp.status_code == 400
+    assert "Sorry. That email already exists." in data["message"]
