@@ -1,10 +1,7 @@
 from flask import Blueprint, request
 from flask_restx import Api, Resource, fields
 
-from src import db
-from src.api.models import User
-
-from src.api.crud import (  #isort: skip
+from src.api.crud import (  # isort:skip
     get_all_users,
     get_user_by_email,
     add_user,
@@ -31,7 +28,7 @@ user = api.model(
 class UsersList(Resource):
     @api.marshal_with(user, as_list=True)
     def get(self):
-        return get_all_users(), 200
+        return get_all_users(), 200  # updated
 
     @api.expect(user, validate=True)
     def post(self):
@@ -40,12 +37,12 @@ class UsersList(Resource):
         email = post_data.get("email")
         response_object = {}
 
-        user = get_user_by_email(email)
+        user = get_user_by_email(email)  # updated
         if user:
             response_object["message"] = "Sorry. That email already exists."
             return response_object, 400
-        
-        add_user(username, email)
+
+        add_user(username, email)  # new
 
         response_object["message"] = f"{email} was added!"
         return response_object, 201
@@ -54,7 +51,7 @@ class UsersList(Resource):
 class Users(Resource):
     @api.marshal_with(user)
     def get(self, user_id):
-        user = get_user_by_id(user_id)
+        user = get_user_by_id(user_id)  # updated
         if not user:
             api.abort(404, f"User {user_id} does not exist")
         return user, 200
@@ -66,27 +63,27 @@ class Users(Resource):
         email = post_data.get("email")
         response_object = {}
 
-        user = get_user_by_id(user_id)
+        user = get_user_by_id(user_id)  # updated
         if not user:
             api.abort(404, f"User {user_id} does not exist")
 
-        if User.query.filter_by(email=email).first():
+        if get_user_by_email(email):  # updated
             response_object["message"] = "Sorry. That email already exists."
             return response_object, 400
-        
-        update_user(user, username, email)        
 
-        response_object["message"] = f"{user_id} was updated!"
+        update_user(user, username, email)  # new
+
+        response_object["message"] = f"{user.id} was updated!"
         return response_object, 200
 
     def delete(self, user_id):
         response_object = {}
-        user = get_user_by_id(user_id)
+        user = get_user_by_id(user_id)  # updated
 
         if not user:
             api.abort(404, f"User {user_id} does not exist")
 
-        delete_user(user)
+        delete_user(user)  # new
 
         response_object["message"] = f"{user.email} was removed!"
         return response_object, 200
