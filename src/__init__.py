@@ -28,7 +28,7 @@ def create_app(script_info=None):
 
     app.register_blueprint(ping_blueprint)
 
-    from src.api.users import users_blueprint
+    from src.api.users.views import users_blueprint
 
     app.register_blueprint(users_blueprint)
 
